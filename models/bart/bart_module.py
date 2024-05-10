@@ -84,12 +84,12 @@ class BartModule(L.LightningModule):
         outputs = self(
             input_ids=input_ids, attention_mask=attention_mask, labels=labels
         )
-        self.log("train_loss", outputs["loss"], on_step=False, on_epoch=True)
+        self.log("train_loss", outputs["loss"], on_step=False, on_epoch=True, sync_dist=True)
         return outputs["loss"]
 
     def validation_step(self, batch, batch_idx):
         _, metrics = self._call_and_compute_metrics(batch, "val")
-        self.log_dict(metrics, on_step=False, on_epoch=True)
+        self.log_dict(metrics, on_step=False, on_epoch=True, sync_dist=True)
 
         return metrics
 
@@ -104,6 +104,7 @@ class BartModule(L.LightningModule):
             log_dict,
             on_step=False,
             on_epoch=True,
+            sync_dist=True,
         )
         self.rouge.reset()
         self.b1.reset()
@@ -113,7 +114,7 @@ class BartModule(L.LightningModule):
 
     def test_step(self, batch, batch_idx):
         _, metrics = self._call_and_compute_metrics(batch, "test")
-        self.log_dict(metrics, on_step=False, on_epoch=True)
+        self.log_dict(metrics, on_step=False, on_epoch=True, sync_dist=True)
 
         return metrics
 
@@ -128,6 +129,7 @@ class BartModule(L.LightningModule):
             log_dict,
             on_step=False,
             on_epoch=True,
+            sync_dist=True
         )
         self.rouge.reset()
         self.b1.reset()

@@ -33,14 +33,14 @@ if __name__ == "__main__":
             ),
             checkpoint_callback,
         ],
-        fast_dev_run=True,
+        # fast_dev_run=True,
         max_epochs=10,
     )
 
     dm = CNNDailyMailDataModule(
         tokenizer=AutoTokenizer.from_pretrained("facebook/bart-large-xsum"),
         batch_size=8,
-        num_workers=0,
+        num_workers=11,
     )
     model = BartModule()
 
