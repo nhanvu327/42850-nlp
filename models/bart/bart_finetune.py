@@ -33,7 +33,7 @@ if __name__ == "__main__":
             ),
             checkpoint_callback,
         ],
-        # fast_dev_run=True,
+        fast_dev_run=True,
         max_epochs=10,
     )
 
