@@ -1,5 +1,6 @@
 import os
 import lightning as L
+import math
 from torch.utils.data import DataLoader
 from datasets import load_dataset, load_from_disk
 
@@ -11,6 +12,9 @@ class CNNDailyMailDataModule(L.LightningDataModule):
         data_dir="data/cnn_dailymail",
         max_token_length: int = 1024,
         batch_size: int = 32,
+        train_size: int = 2000,
+        val_ratio: float = .2,
+        test_ratio: float = .2,
         num_workers: int = 4,
     ):
         super().__init__()
@@ -19,16 +23,21 @@ class CNNDailyMailDataModule(L.LightningDataModule):
         self.tokenizer = tokenizer
         self.max_token_length = max_token_length
         self.data_dir = data_dir
+        self.train_size = train_size
+        self.val_size = math.ceil(train_size * val_ratio)
+        self.test_size = math.ceil(train_size * test_ratio)
 
     def prepare_data(self):
-        full_dataset = load_dataset("cnn_dailymail", "3.0.0")
+        train_set = load_dataset("cnn_dailymail", "3.0.0", split=f"train[:{self.train_size}]")
+        val_set = load_dataset("cnn_dailymail", "3.0.0", split=f"validation[:{self.val_size}]")
+        test_set = load_dataset("cnn_dailymail", "3.0.0", split=f"test[:{self.test_size}]")
 
         train_ds_path = os.path.join(self.data_dir, "train_tokenized")
         validation_ds_path = os.path.join(self.data_dir, "validation_tokenized")
         test_ds_path = os.path.join(self.data_dir, "test_tokenized")
 
         if not os.path.exists(train_ds_path):
-            train_tokenized_dataset = full_dataset["train"].map(
+            train_tokenized_dataset = train_set.map(
                 self._tokenize,
                 batched=True,
                 remove_columns=["article", "highlights", "id"],
@@ -36,7 +45,7 @@ class CNNDailyMailDataModule(L.LightningDataModule):
             train_tokenized_dataset.save_to_disk(train_ds_path)
 
         if not os.path.exists(validation_ds_path):
-            validation_tokenized_dataset = full_dataset["validation"].map(
+            validation_tokenized_dataset = val_set.map(
                 self._tokenize,
                 batched=True,
                 remove_columns=["article", "highlights", "id"],
@@ -44,7 +53,7 @@ class CNNDailyMailDataModule(L.LightningDataModule):
             validation_tokenized_dataset.save_to_disk(validation_ds_path)
 
         if not os.path.exists(test_ds_path):
-            test_tokenized_dataset = full_dataset["test"].map(
+            test_tokenized_dataset = test_set.map(
                 self._tokenize,
                 batched=True,
                 remove_columns=["article", "highlights", "id"],
