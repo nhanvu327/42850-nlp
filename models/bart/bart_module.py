@@ -95,11 +95,11 @@ class BartModule(L.LightningModule):
 
     def on_validation_epoch_end(self):
         rougue = self.rouge.compute()
-        log_dict = {f"val_{k}": v for k, v in rougue.items()}
-        log_dict["val_bleu1"] = self.b1.compute()
-        log_dict["val_bleu2"] = self.b2.compute()
-        log_dict["val_bleu3"] = self.b3.compute()
-        log_dict["val_bleu4"] = self.b4.compute()
+        log_dict = {f"val_{k}": v.to("cuda") for k, v in rougue.items()}
+        log_dict["val_bleu1"] = self.b1.compute().to("cuda")
+        log_dict["val_bleu2"] = self.b2.compute().to("cuda")
+        log_dict["val_bleu3"] = self.b3.compute().to("cuda")
+        log_dict["val_bleu4"] = self.b4.compute().to("cuda")
         self.log_dict(
             log_dict,
             on_step=False,
@@ -120,11 +120,11 @@ class BartModule(L.LightningModule):
 
     def on_test_epoch_end(self):
         rougue = self.rouge.compute()
-        log_dict = {f"test_{k}": v for k, v in rougue.items()}
-        log_dict["test_bleu1"] = self.b1.compute()
-        log_dict["test_bleu2"] = self.b2.compute()
-        log_dict["test_bleu3"] = self.b3.compute()
-        log_dict["test_bleu4"] = self.b4.compute()
+        log_dict = {f"test_{k}": v.to("cuda") for k, v in rougue.items()}
+        log_dict["test_bleu1"] = self.b1.compute().to("cuda")
+        log_dict["test_bleu2"] = self.b2.compute().to("cuda")
+        log_dict["test_bleu3"] = self.b3.compute().to("cuda")
+        log_dict["test_bleu4"] = self.b4.compute().to("cuda")
         self.log_dict(
             log_dict,
             on_step=False,

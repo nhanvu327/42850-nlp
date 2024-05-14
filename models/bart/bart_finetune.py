@@ -1,4 +1,5 @@
 import lightning as L
+import torch
 from lightning.pytorch.callbacks.model_checkpoint import ModelCheckpoint
 from lightning.pytorch.callbacks.early_stopping import EarlyStopping
 from datamodule.cnn_dailymail import CNNDailyMailDataModule
@@ -6,7 +7,7 @@ from models.bart.bart_module import BartModule
 from transformers import AutoTokenizer
 
 if __name__ == "__main__":
-
+    torch.set_float32_matmul_precision('medium')
     checkpoint_callback = ModelCheckpoint(
         monitor="val_loss",
         dirpath="checkpoints/bart",
